@@ -177,17 +177,26 @@ Score:"""
         context: Dict = None
     ) -> Dict[str, Any]:
         """Generate final structured plan from a thought path.
-        
-        Args:
-            query: Original user query.
-            thought_path: List of thoughts forming the reasoning path.
-            context: Optional additional context.
-            
-        Returns:
-            Structured plan dictionary.
+        ...
         """
-        system_message = """You are an AI planning assistant.
-Convert a reasoning path into a structured, executable plan with clear steps and tools."""
+        
+        # --- START: SOLUTION ---
+        # Define the list of tools your ExecutionEngine actually has.
+        available_tools = [
+            'knowledge_graph', 
+            'sentiment_analyzer', 
+            'summarizer', 
+            'news_aggregator'
+        ]
+        tools_list_str = "\n".join(f"- {tool}" for tool in available_tools)
+
+        system_message = f"""You are an AI planning assistant.
+Convert a reasoning path into a structured, executable plan with clear steps and tools.
+
+You MUST ONLY use tools from the following list:
+{tools_list_str}
+
+If no tool from the list is appropriate for a step, set the Tool to 'None'."""
         
         prompt = f"""User Query: {query}
 
@@ -196,7 +205,7 @@ Reasoning Path:
 
 Create a structured plan with:
 1. Clear, numbered steps
-2. Specific tools to use for each step
+2. Specific tools to use FOR EACH STEP from the provided list.
 3. Expected outputs
 
 Format:
