@@ -1,0 +1,135 @@
+# Default Configuration for Preference-Guided Agent System
+
+# Block 1: Context Fusion Configuration
+block1:
+  embedding_model: "text-embedding-3-large"
+  embedding_dim: 3072
+  batch_size: 100
+  max_tokens: 8192
+
+# Block 2: Planning Configuration
+block2:
+  # Policy LLM
+  policy_model: "gpt-4o-mini"
+  temperature: 0.7
+  max_tokens: 4096
+  
+  # Tree of Thoughts
+  tot:
+    beam_width: 3
+    max_depth: 5
+    min_score_threshold: 6.0  # 1-10 scale
+    exploration_factor: 0.7
+    backtracking_enabled: true
+  
+  # DPO Training
+  dpo:
+    beta: 0.1  # KL penalty coefficient
+    learning_rate: 5.0e-6
+    batch_size: 4
+    gradient_accumulation_steps: 4
+    num_epochs: 3
+    warmup_steps: 100
+    max_grad_norm: 1.0
+    logging_steps: 10
+    save_steps: 500
+    eval_steps: 100
+
+# Block 3: Execution Configuration
+block3:
+  max_retries: 3
+  retry_delay: 1.0  # seconds
+  timeout: 30.0
+  
+  # Tools
+  tools:
+    - knowledge_graph
+    - sentiment_analyzer
+    - summarizer
+    - news_aggregator
+  
+  # LangGraph
+  langgraph:
+    max_iterations: 10
+    checkpoint_enabled: true
+    human_in_loop: false
+
+# Block 4: RL Configuration
+block4:
+  # PPO Training
+  ppo:
+    learning_rate: 1.0e-5
+    batch_size: 8
+    mini_batch_size: 2
+    gradient_accumulation_steps: 4
+    num_epochs_per_iteration: 4
+    gamma: 0.99  # Discount factor
+    gae_lambda: 0.95  # GAE parameter
+    clip_epsilon: 0.2  # PPO clip parameter
+    value_loss_coef: 0.5
+    entropy_coef: 0.01
+    max_grad_norm: 0.5
+    target_kl: 0.01
+    
+  # Reward Calculation
+  reward_weights:
+    correctness: 0.4
+    utility: 0.3
+    fluency: 0.3
+  
+  # Judge Model for RLAIF
+  judge_model: "gpt-4o"
+  judge_temperature: 0.3
+  
+  # Training
+  num_iterations: 100
+  eval_frequency: 10
+  save_frequency: 20
+
+# General Settings
+general:
+  seed: 42
+  device: "cuda"  # or "cpu"
+  mixed_precision: "bf16"  # bf16, fp16, or null
+  
+  # Logging
+  logging:
+    level: "INFO"
+    log_file: "logs/agent_system.log"
+    wandb_project: "preference-guided-agent"
+    wandb_enabled: false
+  
+  # Paths
+  paths:
+    data_dir: "data"
+    checkpoints_dir: "checkpoints"
+    outputs_dir: "outputs"
+    ground_truth_dir: "data/ground_truth"
+
+# Domain-Specific: Bollywood
+domain:
+  name: "bollywood"
+  description: "Bollywood entertainment domain"
+  
+  # Knowledge Graph Settings
+  knowledge_graph:
+    max_hops: 2
+    relationship_types:
+      - "acted_in"
+      - "directed"
+      - "produced"
+      - "collaborated_with"
+  
+  # Sentiment Analysis
+  sentiment:
+    model: "distilbert-base-uncased-finetuned-sst-2-english"
+    threshold: 0.6
+  
+  # News Aggregation
+  news:
+    sources:
+      - "bollywood_hungama"
+      - "pinkvilla"
+      - "filmfare"
+    max_articles: 10
+    time_range_days: 7

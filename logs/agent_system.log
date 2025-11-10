@@ -1,0 +1,130 @@
+2025-11-02 08:27:30 | [32mINFO[0m | AgentSystem | __init__:42 | ================================================================================
+2025-11-02 08:27:30 | [32mINFO[0m | AgentSystem | __init__:43 | Initializing Preference-Guided Agent System
+2025-11-02 08:27:30 | [32mINFO[0m | AgentSystem | __init__:44 | ================================================================================
+2025-11-02 08:27:30 | [32mINFO[0m | AgentSystem | __init__:47 | Initializing Block 1: Context Fusion...
+2025-11-02 08:27:30 | [32mINFO[0m | AgentSystem | __init__:39 | Initialized TextEncoder with model: text-embedding-3-large
+2025-11-02 08:27:30 | [32mINFO[0m | AgentSystem | __init__:50 | Initializing Block 2: Planning...
+2025-11-02 08:27:30 | [32mINFO[0m | AgentSystem | __init__:35 | Initialized PolicyLLM with model: gpt-4o-mini
+2025-11-02 08:27:30 | [32mINFO[0m | AgentSystem | __init__:62 | Initialized ToT: beam_width=3, max_depth=5, threshold=6.0
+2025-11-02 08:27:30 | [32mINFO[0m | AgentSystem | __init__:56 | Initializing Block 3: Execution...
+2025-11-02 08:27:30 | [32mINFO[0m | AgentSystem | __init__:49 | Initialized ExecutionEngine with 4 tools
+2025-11-02 08:27:30 | [32mINFO[0m | AgentSystem | __init__:59 | Initializing Block 4: RL & Rewards...
+2025-11-02 08:27:30 | [32mINFO[0m | AgentSystem | __init__:41 | Initialized RewardCalculator
+2025-11-02 08:27:30 | [32mINFO[0m | AgentSystem | __init__:62 | System initialization complete!
+2025-11-02 08:27:30 | [32mINFO[0m | AgentSystem | __init__:63 | ================================================================================
+2025-11-02 08:27:30 | [32mINFO[0m | AgentSystem | log_query:128 | User Query: Tell me about Shah Rukh Khan's latest movies
+2025-11-02 08:27:30 | [32mINFO[0m | AgentSystem | process_query:88 | 
+[BLOCK 1] Context Fusion
+2025-11-02 08:27:30 | [32mINFO[0m | AgentSystem | process_query:89 | ----------------------------------------
+2025-11-02 08:27:30 | [32mINFO[0m | AgentSystem | encode_query_context:95 | Creating fused context vector
+2025-11-02 08:27:33 | [32mINFO[0m | AgentSystem | process_query:92 | Generated embedding: shape=(3072,), norm=1.0000
+2025-11-02 08:27:33 | [32mINFO[0m | AgentSystem | process_query:98 | 
+[BLOCK 2] Planning with Tree of Thoughts
+2025-11-02 08:27:33 | [32mINFO[0m | AgentSystem | process_query:99 | ----------------------------------------
+2025-11-02 08:27:33 | [32mINFO[0m | AgentSystem | log_planning_start:136 | Starting Tree of Thoughts planning...
+2025-11-02 08:28:41 | [32mINFO[0m | AgentSystem | plan:98 | ToT complete: best_path_length=0, score=10.00
+2025-11-02 08:28:45 | [32mINFO[0m | AgentSystem | log_planning_complete:144 | Planning complete: 0 steps
+2025-11-02 08:28:45 | [32mINFO[0m | AgentSystem | process_query:103 | Best reasoning path (0 steps):
+2025-11-02 08:28:45 | [32mINFO[0m | AgentSystem | process_query:107 | 
+Generated plan: 5 steps
+2025-11-02 08:28:45 | [32mINFO[0m | AgentSystem | process_query:109 |   - Step 1: Search for Shah Rukh Khan's latest movies - Tool: Google Search - Expect...
+2025-11-02 08:28:45 | [32mINFO[0m | AgentSystem | process_query:109 |   - Step 2: Verify the information from reliable sources - Tool: IMDb and Bollywood ...
+2025-11-02 08:28:45 | [32mINFO[0m | AgentSystem | process_query:109 |   - Step 3: Compile a summary of the movies - Tool: Document editor (e.g., Google Do...
+2025-11-02 08:28:45 | [32mINFO[0m | AgentSystem | process_query:109 |   - Step 4: Check for upcoming projects - Tool: Entertainment news websites and Shah...
+2025-11-02 08:28:45 | [32mINFO[0m | AgentSystem | process_query:109 |   - Step 5: Format the information for presentation - Tool: Presentation software (e...
+2025-11-02 08:28:45 | [32mINFO[0m | AgentSystem | process_query:112 | 
+[BLOCK 3] Execution
+2025-11-02 08:28:45 | [32mINFO[0m | AgentSystem | process_query:113 | ----------------------------------------
+2025-11-02 08:28:45 | [32mINFO[0m | AgentSystem | log_execution_start:150 | Starting execution...
+2025-11-02 08:28:45 | [32mINFO[0m | AgentSystem | execute_plan:92 | Executing step 1/5
+2025-11-02 08:28:45 | [33mWARNING[0m | AgentSystem | execute_plan:96 | Tool 'Google' not found, skipping step
+2025-11-02 08:28:45 | [32mINFO[0m | AgentSystem | execute_plan:92 | Executing step 2/5
+2025-11-02 08:28:45 | [33mWARNING[0m | AgentSystem | execute_plan:96 | Tool 'IMDb' not found, skipping step
+2025-11-02 08:28:45 | [32mINFO[0m | AgentSystem | execute_plan:92 | Executing step 3/5
+2025-11-02 08:28:45 | [33mWARNING[0m | AgentSystem | execute_plan:96 | Tool 'Document' not found, skipping step
+2025-11-02 08:28:45 | [32mINFO[0m | AgentSystem | execute_plan:92 | Executing step 4/5
+2025-11-02 08:28:45 | [33mWARNING[0m | AgentSystem | execute_plan:96 | Tool 'Entertainment' not found, skipping step
+2025-11-02 08:28:45 | [32mINFO[0m | AgentSystem | execute_plan:92 | Executing step 5/5
+2025-11-02 08:28:45 | [33mWARNING[0m | AgentSystem | execute_plan:96 | Tool 'Presentation' not found, skipping step
+2025-11-02 08:28:45 | [32mINFO[0m | AgentSystem | log_execution_complete:163 | Execution complete. Answer: I apologize, but I was unable to gather the information needed to answer your query....
+2025-11-02 08:28:45 | [32mINFO[0m | AgentSystem | process_query:121 | Execution status: success
+2025-11-02 08:28:45 | [32mINFO[0m | AgentSystem | process_query:122 | Tool results: 0
+2025-11-02 08:28:45 | [32mINFO[0m | AgentSystem | process_query:123 | 
+Final Answer:
+I apologize, but I was unable to gather the information needed to answer your query.
+2025-11-02 08:28:45 | [32mINFO[0m | AgentSystem | process_query:126 | 
+[BLOCK 4] Reward Calculation
+2025-11-02 08:28:45 | [32mINFO[0m | AgentSystem | process_query:127 | ----------------------------------------
+2025-11-02 08:28:48 | [32mINFO[0m | AgentSystem | log_reward:167 | Rewards: {'r_correctness': 0.5, 'r_utility': 0.1, 'r_fluency': 1.0, 'r_final': 0.53}
+2025-11-02 08:28:48 | [32mINFO[0m | AgentSystem | process_query:137 | Reward Components:
+2025-11-02 08:28:48 | [32mINFO[0m | AgentSystem | process_query:139 |   r_correctness: 0.5000
+2025-11-02 08:28:48 | [32mINFO[0m | AgentSystem | process_query:139 |   r_utility: 0.1000
+2025-11-02 08:28:48 | [32mINFO[0m | AgentSystem | process_query:139 |   r_fluency: 1.0000
+2025-11-02 08:28:48 | [32mINFO[0m | AgentSystem | process_query:139 |   r_final: 0.5300
+2025-11-02 11:51:28 | [32mINFO[0m | AgentSystem | __init__:42 | ================================================================================
+2025-11-02 11:51:28 | [32mINFO[0m | AgentSystem | __init__:43 | Initializing Preference-Guided Agent System
+2025-11-02 11:51:28 | [32mINFO[0m | AgentSystem | __init__:44 | ================================================================================
+2025-11-02 11:51:28 | [32mINFO[0m | AgentSystem | __init__:47 | Initializing Block 1: Context Fusion...
+2025-11-02 11:51:28 | [32mINFO[0m | AgentSystem | __init__:39 | Initialized TextEncoder with model: text-embedding-3-large
+2025-11-02 11:51:28 | [32mINFO[0m | AgentSystem | __init__:50 | Initializing Block 2: Planning...
+2025-11-02 11:51:28 | [32mINFO[0m | AgentSystem | __init__:35 | Initialized PolicyLLM with model: gpt-4o-mini
+2025-11-02 11:51:28 | [32mINFO[0m | AgentSystem | __init__:62 | Initialized ToT: beam_width=3, max_depth=5, threshold=6.0
+2025-11-02 11:51:28 | [32mINFO[0m | AgentSystem | __init__:56 | Initializing Block 3: Execution...
+2025-11-02 11:51:28 | [33mWARNING[0m | AgentSystem | _initialize_tools:69 | Could not import tools: No module named 'src.block3_execution.tools.knowledge_graph'. Using mock tools.
+2025-11-02 11:51:28 | [32mINFO[0m | AgentSystem | __init__:49 | Initialized ExecutionEngine with 4 tools
+2025-11-02 11:51:28 | [32mINFO[0m | AgentSystem | __init__:59 | Initializing Block 4: RL & Rewards...
+2025-11-02 11:51:28 | [32mINFO[0m | AgentSystem | __init__:41 | Initialized RewardCalculator
+2025-11-02 11:51:28 | [32mINFO[0m | AgentSystem | __init__:62 | System initialization complete!
+2025-11-02 11:51:28 | [32mINFO[0m | AgentSystem | __init__:63 | ================================================================================
+2025-11-02 11:51:28 | [32mINFO[0m | AgentSystem | log_query:128 | User Query: Tell me about Shah Rukh Khan
+2025-11-02 11:51:28 | [32mINFO[0m | AgentSystem | process_query:88 | 
+[BLOCK 1] Context Fusion
+2025-11-02 11:51:28 | [32mINFO[0m | AgentSystem | process_query:89 | ----------------------------------------
+2025-11-02 11:51:28 | [32mINFO[0m | AgentSystem | encode_query_context:95 | Creating fused context vector
+2025-11-02 11:51:29 | [32mINFO[0m | AgentSystem | process_query:92 | Generated embedding: shape=(3072,), norm=1.0000
+2025-11-02 11:51:29 | [32mINFO[0m | AgentSystem | process_query:98 | 
+[BLOCK 2] Planning with Tree of Thoughts
+2025-11-02 11:51:29 | [32mINFO[0m | AgentSystem | process_query:99 | ----------------------------------------
+2025-11-02 11:51:29 | [32mINFO[0m | AgentSystem | log_planning_start:136 | Starting Tree of Thoughts planning...
+2025-11-02 11:52:40 | [32mINFO[0m | AgentSystem | plan:98 | ToT complete: best_path_length=0, score=10.00
+2025-11-02 11:52:48 | [32mINFO[0m | AgentSystem | log_planning_complete:144 | Planning complete: 0 steps
+2025-11-02 11:52:48 | [32mINFO[0m | AgentSystem | process_query:103 | Best reasoning path (0 steps):
+2025-11-02 11:52:48 | [32mINFO[0m | AgentSystem | process_query:107 | 
+Generated plan: 6 steps
+2025-11-02 11:52:48 | [32mINFO[0m | AgentSystem | process_query:109 |   - **Step 1:** Research basic biographical information about Shah Rukh Khan...
+2025-11-02 11:52:48 | [32mINFO[0m | AgentSystem | process_query:109 |   - **Step 2:** Explore his filmography...
+2025-11-02 11:52:48 | [32mINFO[0m | AgentSystem | process_query:109 |   - **Step 3:** Investigate his awards and recognitions...
+2025-11-02 11:52:48 | [32mINFO[0m | AgentSystem | process_query:109 |   - **Step 4:** Analyze his impact on Indian cinema and pop culture...
+2025-11-02 11:52:48 | [32mINFO[0m | AgentSystem | process_query:109 |   - **Step 5:** Review recent news and interviews...
+2025-11-02 11:52:48 | [32mINFO[0m | AgentSystem | process_query:109 |   - **Step 6:** Compile the information into a cohesive summary...
+2025-11-02 11:52:48 | [32mINFO[0m | AgentSystem | process_query:112 | 
+[BLOCK 3] Execution
+2025-11-02 11:52:48 | [32mINFO[0m | AgentSystem | process_query:113 | ----------------------------------------
+2025-11-02 11:52:48 | [32mINFO[0m | AgentSystem | log_execution_start:150 | Starting execution...
+2025-11-02 11:52:48 | [32mINFO[0m | AgentSystem | execute_plan:106 | Executing step 1/6
+2025-11-02 11:52:48 | [33mWARNING[0m | AgentSystem | execute_plan:110 | Tool 'None' not found, skipping step
+2025-11-02 11:52:48 | [32mINFO[0m | AgentSystem | execute_plan:106 | Executing step 2/6
+2025-11-02 11:52:48 | [33mWARNING[0m | AgentSystem | execute_plan:110 | Tool 'None' not found, skipping step
+2025-11-02 11:52:48 | [32mINFO[0m | AgentSystem | execute_plan:106 | Executing step 3/6
+2025-11-02 11:52:48 | [33mWARNING[0m | AgentSystem | execute_plan:110 | Tool 'None' not found, skipping step
+2025-11-02 11:52:48 | [32mINFO[0m | AgentSystem | execute_plan:106 | Executing step 4/6
+2025-11-02 11:52:48 | [33mWARNING[0m | AgentSystem | execute_plan:110 | Tool 'None' not found, skipping step
+2025-11-02 11:52:48 | [32mINFO[0m | AgentSystem | execute_plan:106 | Executing step 5/6
+2025-11-02 11:52:48 | [33mWARNING[0m | AgentSystem | execute_plan:110 | Tool 'None' not found, skipping step
+2025-11-02 11:52:48 | [32mINFO[0m | AgentSystem | execute_plan:106 | Executing step 6/6
+2025-11-02 11:52:48 | [33mWARNING[0m | AgentSystem | execute_plan:110 | Tool 'None' not found, skipping step
+2025-11-02 11:52:48 | [32mINFO[0m | AgentSystem | log_execution_complete:163 | Execution complete. Answer: I apologize, but I was unable to gather the information needed to answer your query....
+2025-11-02 11:52:48 | [32mINFO[0m | AgentSystem | process_query:121 | Execution status: success
+2025-11-02 11:52:48 | [32mINFO[0m | AgentSystem | process_query:122 | Tool results: 0
+2025-11-02 11:52:48 | [32mINFO[0m | AgentSystem | process_query:123 | 
+Final Answer:
+I apologize, but I was unable to gather the information needed to answer your query.
+2025-11-02 11:52:48 | [32mINFO[0m | AgentSystem | process_query:126 | 
+[BLOCK 4] Reward Calculation
+2025-11-02 11:52:48 | [32mINFO[0m | AgentSystem | process_query:127 | ----------------------------------------
+2025-11-02 11:52:49 | [32mINFO[0m | AgentSystem | log_reward:167 | Rewards: {'r_correctness': 0.5, 'r_utility': 0.1, 'r_fluency': 1.0, 'r_final': 0.53}
+2025-11-02 11:52:49 | [32mINFO[0m | AgentSystem | process_query:137 | Reward Components:
+2025-11-02 11:52:49 | [32mINFO[0m | AgentSystem | process_query:139 |   r_correctness: 0.5000
+2025-11-02 11:52:49 | [32mINFO[0m | AgentSystem | process_query:139 |   r_utility: 0.1000
+2025-11-02 11:52:49 | [32mINFO[0m | AgentSystem | process_query:139 |   r_fluency: 1.0000
+2025-11-02 11:52:49 | [32mINFO[0m | AgentSystem | process_query:139 |   r_final: 0.5300
