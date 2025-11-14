@@ -7,13 +7,14 @@ A sophisticated multi-agent system for Bollywood entertainment queries with pref
 This system combines:
 - **Preference Learning**: DPO and PPO training for personalized responses
 - **Tree of Thoughts**: Advanced reasoning and planning
-- **Multi-Tool Execution**: Knowledge graphs, sentiment analysis, summarization, news aggregation, and web search
+- **Multi-Tool Execution**: Knowledge graphs, sentiment analysis, summarization, news aggregation, and **FREE web search**
 - **Reinforcement Learning**: RLAIF-based reward optimization
 
-All tools use OpenAI's GPT models, making them:
-- Easy to test (no external APIs needed for most tools)
-- Flexible and adaptable
-- Domain-agnostic (easy to extend to other domains)
+Key Features:
+- ✅ **FREE Web Search** - No API keys required (DuckDuckGo + web scraping)
+- ✅ **LLM-Based Tools** - Most tools use OpenAI's GPT models
+- ✅ **Research-Friendly** - Perfect for academic and research purposes
+- ✅ **Flexible** - Easy to extend to other domains
 
 ## Available Tools
 
@@ -177,17 +178,29 @@ result = aggregator.get_upcoming_releases("next quarter")
 
 ---
 
-### 5. Google Search Tool 🔍
+### 5. FREE Web Search Tool 🔍✨
 **File**: `google_search.py`
 
-Web search integration using Google Custom Search API.
+**🎉 No API Keys Required! Completely FREE!**
+
+Web search using DuckDuckGo + real web scraping (like a human browsing).
 
 **Features**:
-- Real-time web search
-- News-specific search
-- Date range filtering
-- LLM-powered result summarization
-- Mock mode for testing
+- ✅ Free DuckDuckGo search (no API keys!)
+- ✅ Automatic keyword extraction from queries and plan steps
+- ✅ Web scraping of top results (actual content, not just snippets)
+- ✅ Parallel search support (multiple queries at once)
+- ✅ Smart caching (1-hour cache to avoid duplicate requests)
+- ✅ LLM-powered summarization (optional)
+
+**Quick Setup**:
+```bash
+# Install free dependencies
+pip install -r requirements_search.txt
+
+# Test it
+python scripts/test_search.py
+```
 
 **Usage**:
 ```python
@@ -195,27 +208,31 @@ from src.block3_execution.tools import create_google_search
 
 search = create_google_search()
 
-# Basic search
+# Basic search - automatically extracts keywords and scrapes content
 result = search.search("Pathaan box office collections")
 
-# News search
-result = search.search_news("Shah Rukh Khan latest")
+# With plan context - extracts keywords from step
+context = {'step': 'Step 1: Search for latest Bollywood news'}
+result = search.search("Bollywood news", context=context)
 
-# Date range search
-result = search.search_with_date_range(
-    "Bollywood awards",
-    start_date="20240101",
-    end_date="20241231"
-)
+# Parallel search for multiple queries
+results = search.parallel_search([
+    "Jawan box office",
+    "Dunki release date",
+    "Tiger 3 reviews"
+])
 ```
 
-**Setup Required**:
-```bash
-export GOOGLE_API_KEY="your-api-key"
-export GOOGLE_SEARCH_ENGINE_ID="your-cx-id"
-```
+**How It Works Like a Human:**
+1. Extracts meaningful keywords from your query
+2. Searches DuckDuckGo (free!)
+3. Scrapes top 3 websites for actual content
+4. Summarizes with GPT-4o-mini
+5. Caches results to avoid duplicate work
 
-See [Google Search Tool Documentation](docs/GOOGLE_SEARCH_TOOL.md) for complete setup and usage guide.
+**Perfect for Research!** ✅ Free ✅ No API Keys ✅ Scrapes Real Content
+
+See [Free Web Search Setup Guide](docs/FREE_WEB_SEARCH_SETUP.md) for complete documentation.
 
 ---
 

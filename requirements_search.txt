@@ -1,0 +1,11 @@
+# Free search and web scraping dependencies
+# No API keys required - perfect for research!
+
+duckduckgo-search>=4.0.0    # Free DuckDuckGo search
+beautifulsoup4>=4.12.0       # HTML parsing for web scraping
+requests>=2.31.0             # HTTP requests
+lxml>=4.9.0                  # Fast HTML/XML parser
+html5lib>=1.1                # HTML parser
+trafilatura>=1.6.0           # Web content extraction
+newspaper3k>=0.2.8           # Article extraction
+fake-useragent>=1.4.0        # Rotate user agents
