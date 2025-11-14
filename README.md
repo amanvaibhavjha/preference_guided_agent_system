@@ -1,11 +1,19 @@
-# Tools Documentation
+# Preference-Guided Agent System
 
-## Overview
+A sophisticated multi-agent system for Bollywood entertainment queries with preference learning, Tree of Thoughts planning, and reinforcement learning optimization.
 
-This directory contains **LLM-based tools** for the Bollywood domain. All tools use OpenAI's GPT models, making them:
--  Easy to test (no external APIs needed)
--  Flexible and adaptable
--  Domain-agnostic (easy to extend to other domains)
+## 🎯 Overview
+
+This system combines:
+- **Preference Learning**: DPO and PPO training for personalized responses
+- **Tree of Thoughts**: Advanced reasoning and planning
+- **Multi-Tool Execution**: Knowledge graphs, sentiment analysis, summarization, news aggregation, and web search
+- **Reinforcement Learning**: RLAIF-based reward optimization
+
+All tools use OpenAI's GPT models, making them:
+- Easy to test (no external APIs needed for most tools)
+- Flexible and adaptable
+- Domain-agnostic (easy to extend to other domains)
 
 ## Available Tools
 
@@ -166,6 +174,48 @@ result = aggregator.get_upcoming_releases("next quarter")
 - `releases`: New movie releases
 - `celebrity`: Celebrity updates
 - `awards`: Award news and nominations
+
+---
+
+### 5. Google Search Tool 🔍
+**File**: `google_search.py`
+
+Web search integration using Google Custom Search API.
+
+**Features**:
+- Real-time web search
+- News-specific search
+- Date range filtering
+- LLM-powered result summarization
+- Mock mode for testing
+
+**Usage**:
+```python
+from src.block3_execution.tools import create_google_search
+
+search = create_google_search()
+
+# Basic search
+result = search.search("Pathaan box office collections")
+
+# News search
+result = search.search_news("Shah Rukh Khan latest")
+
+# Date range search
+result = search.search_with_date_range(
+    "Bollywood awards",
+    start_date="20240101",
+    end_date="20241231"
+)
+```
+
+**Setup Required**:
+```bash
+export GOOGLE_API_KEY="your-api-key"
+export GOOGLE_SEARCH_ENGINE_ID="your-cx-id"
+```
+
+See [Google Search Tool Documentation](docs/GOOGLE_SEARCH_TOOL.md) for complete setup and usage guide.
 
 ---
 
@@ -368,10 +418,75 @@ Rename for clarity:
 
 ---
 
+## 📊 CORAL Integration & Preference Learning
+
+This system supports preference learning using the [CORAL dataset](https://huggingface.co/datasets/kookeej/CORAL) for conversational recommendations.
+
+### Download & Setup
+
+```bash
+# Install dependencies
+pip install datasets transformers
+
+# Download CORAL datasets
+python scripts/download_coral.py --inspect
+
+# Preprocess for training
+python scripts/preprocess_data.py
+```
+
+### Training with DPO and PPO
+
+```bash
+# Train with Direct Preference Optimization
+python scripts/train_preference_model.py --stage dpo
+
+# Train with Proximal Policy Optimization
+python scripts/train_preference_model.py --stage ppo
+
+# Full training pipeline
+python scripts/train_preference_model.py --stage both
+```
+
+### Architecture Enhancements
+
+The CORAL integration adds:
+- **Block 0**: Preference encoding and retrieval
+- **Enhanced Block 1**: Preference-aware context fusion
+- **Enhanced Block 2**: DPO-trained planning policy
+- **Enhanced Block 4**: PPO-trained reward model
+- **Block 5**: Personalized response generation
+
+See [CORAL Integration Plan](docs/CORAL_INTEGRATION_PLAN.md) for comprehensive details.
+
+### Expected Metrics
+
+| Metric | Target |
+|--------|--------|
+| Hit Rate @10 | > 0.75 |
+| NDCG @10 | > 0.65 |
+| Preference Accuracy | > 0.70 |
+| Contrasting Score | > 0.85 |
+
+---
+
+## Troubleshooting
+
 **1. "OpenAI API key not set"**
 ```bash
 export OPENAI_API_KEY="sk-..."
 ```
+
+**2. "Google Search API error"**
+- Verify API key is correct
+- Enable Custom Search API in Google Cloud
+- Check search engine CX ID
+
+**3. "CORAL dataset not found"**
+```bash
+python scripts/download_coral.py
+```
+
 ---
 
 ## Future Enhancements
