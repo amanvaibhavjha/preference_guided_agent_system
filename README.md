@@ -1,11 +1,20 @@
-# Tools Documentation
+# Preference-Guided Agent System
 
-## Overview
+A sophisticated multi-agent system for Bollywood entertainment queries with preference learning, Tree of Thoughts planning, and reinforcement learning optimization.
 
-This directory contains **LLM-based tools** for the Bollywood domain. All tools use OpenAI's GPT models, making them:
--  Easy to test (no external APIs needed)
--  Flexible and adaptable
--  Domain-agnostic (easy to extend to other domains)
+## 🎯 Overview
+
+This system combines:
+- **Preference Learning**: DPO and PPO training for personalized responses
+- **Tree of Thoughts**: Advanced reasoning and planning
+- **Multi-Tool Execution**: Knowledge graphs, sentiment analysis, summarization, news aggregation, and **FREE web search**
+- **Reinforcement Learning**: RLAIF-based reward optimization
+
+Key Features:
+- ✅ **FREE Web Search** - No API keys required (DuckDuckGo + web scraping)
+- ✅ **LLM-Based Tools** - Most tools use OpenAI's GPT models
+- ✅ **Research-Friendly** - Perfect for academic and research purposes
+- ✅ **Flexible** - Easy to extend to other domains
 
 ## Available Tools
 
@@ -166,6 +175,64 @@ result = aggregator.get_upcoming_releases("next quarter")
 - `releases`: New movie releases
 - `celebrity`: Celebrity updates
 - `awards`: Award news and nominations
+
+---
+
+### 5. FREE Web Search Tool 🔍✨
+**File**: `google_search.py`
+
+**🎉 No API Keys Required! Completely FREE!**
+
+Web search using DuckDuckGo + real web scraping (like a human browsing).
+
+**Features**:
+- ✅ Free DuckDuckGo search (no API keys!)
+- ✅ Automatic keyword extraction from queries and plan steps
+- ✅ Web scraping of top results (actual content, not just snippets)
+- ✅ Parallel search support (multiple queries at once)
+- ✅ Smart caching (1-hour cache to avoid duplicate requests)
+- ✅ LLM-powered summarization (optional)
+
+**Quick Setup**:
+```bash
+# Install free dependencies
+pip install -r requirements_search.txt
+
+# Test it
+python scripts/test_search.py
+```
+
+**Usage**:
+```python
+from src.block3_execution.tools import create_google_search
+
+search = create_google_search()
+
+# Basic search - automatically extracts keywords and scrapes content
+result = search.search("Pathaan box office collections")
+
+# With plan context - extracts keywords from step
+context = {'step': 'Step 1: Search for latest Bollywood news'}
+result = search.search("Bollywood news", context=context)
+
+# Parallel search for multiple queries
+results = search.parallel_search([
+    "Jawan box office",
+    "Dunki release date",
+    "Tiger 3 reviews"
+])
+```
+
+**How It Works Like a Human:**
+1. Extracts meaningful keywords from your query
+2. Searches DuckDuckGo (free!)
+3. Scrapes top 3 websites for actual content
+4. Summarizes with GPT-4o-mini
+5. Caches results to avoid duplicate work
+
+**Perfect for Research!** ✅ Free ✅ No API Keys ✅ Scrapes Real Content
+
+See [Free Web Search Setup Guide](docs/FREE_WEB_SEARCH_SETUP.md) for complete documentation.
 
 ---
 
@@ -368,10 +435,75 @@ Rename for clarity:
 
 ---
 
+## 📊 CORAL Integration & Preference Learning
+
+This system supports preference learning using the [CORAL dataset](https://huggingface.co/datasets/kookeej/CORAL) for conversational recommendations.
+
+### Download & Setup
+
+```bash
+# Install dependencies
+pip install datasets transformers
+
+# Download CORAL datasets
+python scripts/download_coral.py --inspect
+
+# Preprocess for training
+python scripts/preprocess_data.py
+```
+
+### Training with DPO and PPO
+
+```bash
+# Train with Direct Preference Optimization
+python scripts/train_preference_model.py --stage dpo
+
+# Train with Proximal Policy Optimization
+python scripts/train_preference_model.py --stage ppo
+
+# Full training pipeline
+python scripts/train_preference_model.py --stage both
+```
+
+### Architecture Enhancements
+
+The CORAL integration adds:
+- **Block 0**: Preference encoding and retrieval
+- **Enhanced Block 1**: Preference-aware context fusion
+- **Enhanced Block 2**: DPO-trained planning policy
+- **Enhanced Block 4**: PPO-trained reward model
+- **Block 5**: Personalized response generation
+
+See [CORAL Integration Plan](docs/CORAL_INTEGRATION_PLAN.md) for comprehensive details.
+
+### Expected Metrics
+
+| Metric | Target |
+|--------|--------|
+| Hit Rate @10 | > 0.75 |
+| NDCG @10 | > 0.65 |
+| Preference Accuracy | > 0.70 |
+| Contrasting Score | > 0.85 |
+
+---
+
+## Troubleshooting
+
 **1. "OpenAI API key not set"**
 ```bash
 export OPENAI_API_KEY="sk-..."
 ```
+
+**2. "Google Search API error"**
+- Verify API key is correct
+- Enable Custom Search API in Google Cloud
+- Check search engine CX ID
+
+**3. "CORAL dataset not found"**
+```bash
+python scripts/download_coral.py
+```
+
 ---
 
 ## Future Enhancements

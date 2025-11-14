@@ -183,10 +183,11 @@ Score:"""
         # --- START: SOLUTION ---
         # Define the list of tools your ExecutionEngine actually has.
         available_tools = [
-            'knowledge_graph', 
-            'sentiment_analyzer', 
-            'summarizer', 
-            'news_aggregator'
+            'knowledge_graph',
+            'sentiment_analyzer',
+            'summarizer',
+            'news_aggregator',
+            'google_search'
         ]
         tools_list_str = "\n".join(f"- {tool}" for tool in available_tools)
 

@@ -58,12 +58,14 @@ class ExecutionEngine:
             from src.block3_execution.tools.sentiment_analyzer import sentiment_analyzer_tool
             from src.block3_execution.tools.summarizer import summarizer_tool
             from src.block3_execution.tools.news_aggregator import news_aggregator_tool
-            
+            from src.block3_execution.tools.google_search import google_search_tool
+
             return {
                 'knowledge_graph': knowledge_graph_tool,
                 'sentiment_analyzer': sentiment_analyzer_tool,
                 'summarizer': summarizer_tool,
                 'news_aggregator': news_aggregator_tool,
+                'google_search': google_search_tool,
             }
         except ImportError as e:
             self.logger.logger.warning(f"Could not import tools: {e}. Using mock tools.")
@@ -73,6 +75,7 @@ class ExecutionEngine:
                 'sentiment_analyzer': self._mock_sentiment_analyzer,
                 'summarizer': self._mock_summarizer,
                 'news_aggregator': self._mock_news_aggregator,
+                'google_search': self._mock_google_search,
             }
     
     def execute_plan(
@@ -219,18 +222,22 @@ class ExecutionEngine:
     def _mock_knowledge_graph(self, query: str, **kwargs) -> str:
         """Mock knowledge graph tool."""
         return f"Knowledge graph results for: {query[:50]}..."
-    
+
     def _mock_sentiment_analyzer(self, query: str, **kwargs) -> str:
         """Mock sentiment analyzer tool."""
         return "Sentiment: Positive (confidence: 0.85)"
-    
+
     def _mock_summarizer(self, query: str, **kwargs) -> str:
         """Mock summarizer tool."""
         return f"Summary: {query[:100]}..."
-    
+
     def _mock_news_aggregator(self, query: str, **kwargs) -> str:
         """Mock news aggregator tool."""
         return "Latest news: [Recent articles about the topic]"
+
+    def _mock_google_search(self, query: str, **kwargs) -> str:
+        """Mock Google search tool."""
+        return f"Google search results for: {query[:50]}..."
 
 
 def create_execution_engine(config) -> ExecutionEngine:

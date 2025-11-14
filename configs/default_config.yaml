@@ -47,6 +47,7 @@ block3:
     - sentiment_analyzer
     - summarizer
     - news_aggregator
+    - google_search
   
   # LangGraph
   langgraph:
