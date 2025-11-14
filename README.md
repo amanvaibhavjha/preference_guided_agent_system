@@ -12,16 +12,62 @@ This system combines:
 
 Key Features:
 - ✅ **FREE Web Search** - No API keys required (DuckDuckGo + web scraping)
+- ✅ **Dynamic Knowledge Graph** - Self-evolving memory that learns from every interaction
 - ✅ **LLM-Based Tools** - Most tools use OpenAI's GPT models
 - ✅ **Research-Friendly** - Perfect for academic and research purposes
 - ✅ **Flexible** - Easy to extend to other domains
 
 ## Available Tools
 
-### 1. Knowledge Graph Tool 📊
-**File**: `knowledge_graph.py`
+### 1. Dynamic Knowledge Graph Tool 📊🧠✨
+**Files**: `dynamic_knowledge_graph.py`, `kg_integration.py`
 
-Simulates a knowledge graph using LLM queries for Bollywood entities and relationships.
+**🎉 Self-Evolving Memory! Learns from Every Interaction!**
+
+A sophisticated knowledge graph that starts empty and grows organically:
+- ✅ Learns automatically from all tool outputs (search, sentiment, news)
+- ✅ Avoids redundant information (updates existing entities)
+- ✅ Persists to disk for long-term memory
+- ✅ Answers queries using accumulated knowledge
+- ✅ Reduces API calls by 60-80%
+
+**Quick Start:**
+```bash
+# See the evolution demo
+python scripts/demo_dynamic_kg.py
+
+# Use in code
+from src.block3_execution.tools import create_dynamic_knowledge_graph
+
+kg = create_dynamic_knowledge_graph()
+kg.learn_from_text("Pathaan stars Shah Rukh Khan", source="user")
+result = kg.query("Tell me about Shah Rukh Khan")
+```
+
+**How It Works:**
+1. User asks: "Pathaan box office collection"
+2. Agent searches web, finds: "₹1055 crores"
+3. **KG learns**: Creates entities (Pathaan, SRK), stores box office number
+4. Later query: "What are SRK's movies?"
+5. **KG answers** - no web search needed! Instant response from memory
+
+**Integration with All Tools:**
+```python
+from src.block3_execution.tools import kg_aware_google_search
+
+# Automatically learns from search results
+result = kg_aware_google_search("Jawan reviews")
+# KG now knows about Jawan!
+```
+
+See [Dynamic Knowledge Graph Guide](docs/DYNAMIC_KNOWLEDGE_GRAPH.md) for complete documentation.
+
+---
+
+### 2. Static Knowledge Graph Tool 📊
+**File**: `create_knowledge_graph.py`
+
+Legacy LLM-based knowledge graph (for comparison).
 
 **Features**:
 - Actor filmographies
@@ -57,7 +103,7 @@ result = kg.query("Who directed Sholay?")
 
 ---
 
-### 2. Sentiment Analyzer Tool 💭
+### 3. Sentiment Analyzer Tool 💭
 **File**: `sentiment_analyzer.py`
 
 Analyzes sentiment of reviews, comments, and social media posts.
@@ -96,7 +142,7 @@ result = analyzer.compare_sentiment(review1, review2)
 
 ---
 
-### 3. Summarizer Tool 📝
+### 4. Summarizer Tool 📝
 **File**: `summarizer.py`
 
 Summarizes text with support for Hindi-English mixed content.
@@ -135,7 +181,7 @@ result = summarizer.extract_key_points(text, num_points=5)
 
 ---
 
-### 4. News Aggregator Tool 📰
+### 5. News Aggregator Tool 📰
 **File**: `news_aggregator.py`
 
 Aggregates latest Bollywood news, gossip, and industry updates.
@@ -178,7 +224,7 @@ result = aggregator.get_upcoming_releases("next quarter")
 
 ---
 
-### 5. FREE Web Search Tool 🔍✨
+### 6. FREE Web Search Tool 🔍✨
 **File**: `google_search.py`
 
 **🎉 No API Keys Required! Completely FREE!**

@@ -9,3 +9,4 @@ html5lib>=1.1                # HTML parser
 trafilatura>=1.6.0           # Web content extraction
 newspaper3k>=0.2.8           # Article extraction
 fake-useragent>=1.4.0        # Rotate user agents
+networkx>=3.0

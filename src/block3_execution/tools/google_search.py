@@ -47,14 +47,16 @@ class KeywordExtractor:
 
     def __init__(self):
         """Initialize keyword extractor."""
-        # Common stop words to remove
+        # Common stop words to remove (only truly meaningless words)
         self.stop_words = {
             'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for',
-            'of', 'with', 'by', 'from', 'about', 'as', 'is', 'was', 'are', 'were',
+            'of', 'with', 'by', 'from', 'as', 'was', 'were',
             'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did',
-            'will', 'would', 'could', 'should', 'may', 'might', 'can', 'what',
-            'when', 'where', 'who', 'which', 'why', 'how', 'get', 'find', 'search',
-            'tell', 'me', 'show', 'give', 'latest', 'recent', 'current', 'new'
+            'will', 'would', 'could', 'should', 'may', 'might', 'can',
+            'when', 'where', 'why', 'how', 'get', 'find', 'search',
+            'tell', 'me', 'show', 'give'
+            # Removed: 'about', 'is', 'are', 'what', 'who', 'which', 'latest', 'recent', 'current', 'new', 'all'
+            # These can be meaningful in context
         }
 
     def extract_keywords(self, query: str, context: Dict = None) -> List[str]:
@@ -68,29 +70,27 @@ class KeywordExtractor:
         Returns:
             List of extracted keywords
         """
-        # Clean the query
-        query = query.lower().strip()
+        original_query = query.strip()
+        query_lower = query.lower().strip()
 
-        # Remove common phrases
-        query = re.sub(r'(search for|find out|tell me about|information on|what is|who is)', '', query)
+        keywords = []
 
         # Extract quoted phrases first (these are exact search terms)
-        quoted = re.findall(r'"([^"]+)"', query)
-        keywords = quoted.copy()
+        quoted = re.findall(r'"([^"]+)"', original_query)
+        keywords.extend(quoted)
 
-        # Remove quoted phrases from query
-        for q in quoted:
-            query = query.replace(f'"{q}"', '')
-
-        # Extract capitalized words/names (likely important entities)
-        capitalized = re.findall(r'\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b', query)
+        # Extract capitalized words/names from ORIGINAL query (before lowercasing)
+        capitalized = re.findall(r'\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b', original_query)
         keywords.extend(capitalized)
 
+        # Remove common phrases from lowercased version
+        cleaned = re.sub(r'(search for|find out|tell me about|information on|what is|who is|all of|list of)', '', query_lower)
+
         # Extract remaining meaningful words
-        words = re.findall(r'\b[a-z]{3,}\b', query)  # Words 3+ chars
+        words = re.findall(r'\b[a-z]{3,}\b', cleaned)
         meaningful_words = [w for w in words if w not in self.stop_words]
 
-        # Get top meaningful words (max 5)
+        # Add meaningful words
         keywords.extend(meaningful_words[:5])
 
         # Remove duplicates while preserving order
@@ -102,7 +102,17 @@ class KeywordExtractor:
                 seen.add(kw_lower)
                 unique_keywords.append(kw)
 
-        return unique_keywords[:10]  # Max 10 keywords
+        # If we have too few keywords, use more of the original query
+        if len(unique_keywords) < 2:
+            # Fall back to using important words from original
+            all_words = original_query.split()
+            for word in all_words:
+                if len(word) >= 3 and word.lower() not in self.stop_words:
+                    if word.lower() not in seen:
+                        seen.add(word.lower())
+                        unique_keywords.append(word)
+
+        return unique_keywords[:10] if unique_keywords else [original_query]
 
     def extract_from_plan_step(self, step_description: str) -> List[str]:
         """
@@ -292,7 +302,7 @@ class FreeWebSearchTool:
         self.web_scraper = WebScraper()
         self.cache = SearchCache()
 
-        # Check if OpenAI is available for summarization
+        # Check if OpenAI is available for query reformulation & summarization
         self.openai_client = None
         if OPENAI_AVAILABLE:
             api_key = os.getenv("OPENAI_API_KEY")
@@ -307,6 +317,74 @@ class FreeWebSearchTool:
             print("Warning: Web scraping libraries not installed.")
             print("Install with: pip install -r requirements_search.txt")
 
+    def _llm_reformulate_query(
+        self,
+        query: str,
+        context: Optional[Dict] = None,
+        num_queries: int = 1
+    ) -> List[str]:
+        """
+        Use LLM to reformulate query into better search queries.
+
+        Args:
+            query: Original user query
+            context: Optional context
+            num_queries: Number of search queries to generate (1-3)
+
+        Returns:
+            List of reformulated search queries
+        """
+        if not self.openai_client:
+            # Fallback to original query if no LLM
+            return [query]
+
+        try:
+            system_prompt = """You are a search query expert. Your job is to reformulate user queries
+into effective web search queries that will find relevant Bollywood/entertainment information.
+
+Guidelines:
+- Keep queries concise and specific
+- Include important context (Bollywood, movie name, year, etc.)
+- Remove filler words
+- If the query is about movies/entertainment but doesn't mention Bollywood, add it
+- Generate 1-3 search queries (can be variations or different angles)
+- Return ONLY the search queries, one per line, no numbering or explanations"""
+
+            user_prompt = f"""User query: "{query}"
+
+Generate {num_queries} optimal search {'query' if num_queries == 1 else 'queries'} for this.
+Return only the search {'query' if num_queries == 1 else 'queries'}, one per line."""
+
+            response = self.openai_client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt}
+                ],
+                temperature=0.3,
+                max_tokens=150
+            )
+
+            result = response.choices[0].message.content.strip()
+
+            # Parse queries (one per line)
+            queries = [q.strip() for q in result.split('\n') if q.strip()]
+
+            # Remove any numbering (1., 2., etc.)
+            queries = [re.sub(r'^\d+[\.\)]\s*', '', q) for q in queries]
+
+            # Remove quotes if present
+            queries = [q.strip('"\'') for q in queries]
+
+            if queries:
+                return queries[:num_queries]
+            else:
+                return [query]
+
+        except Exception as e:
+            print(f"LLM query reformulation failed: {e}")
+            return [query]
+
     def search(
         self,
         query: str,
@@ -314,6 +392,8 @@ class FreeWebSearchTool:
         num_results: int = 5,
         scrape_content: bool = True,
         summarize: bool = True,
+        use_llm_reformulation: bool = True,
+        num_parallel_queries: int = 1,
         **kwargs
     ) -> str:
         """
@@ -325,6 +405,8 @@ class FreeWebSearchTool:
             num_results: Number of results to retrieve (default 5)
             scrape_content: Whether to scrape website content (default True)
             summarize: Whether to summarize results with LLM (default True)
+            use_llm_reformulation: Whether to use LLM to reformulate queries (default True)
+            num_parallel_queries: Number of parallel search queries to generate (1-3, default 1)
 
         Returns:
             Formatted search results with scraped content
@@ -333,18 +415,41 @@ class FreeWebSearchTool:
             return self._get_installation_instructions()
 
         try:
-            # Extract keywords from query
-            keywords = self.keyword_extractor.extract_keywords(query, context)
-
-            # Check if plan step has specific search terms
-            if context and 'step' in context:
-                step_keywords = self.keyword_extractor.extract_from_plan_step(
-                    str(context['step'])
+            # Use LLM to reformulate query for better search results
+            if use_llm_reformulation and self.openai_client:
+                print(f"🤖 Using LLM to reformulate query...")
+                search_queries = self._llm_reformulate_query(
+                    query,
+                    context,
+                    num_queries=num_parallel_queries
                 )
-                keywords = list(set(keywords + step_keywords))
+                print(f"   Reformulated queries: {search_queries}")
+            else:
+                # Fallback to keyword-based approach
+                keywords = self.keyword_extractor.extract_keywords(query, context)
 
-            # Construct search query from keywords
-            search_query = ' '.join(keywords[:5]) if keywords else query
+                # Check if plan step has specific search terms
+                if context and 'step' in context:
+                    step_keywords = self.keyword_extractor.extract_from_plan_step(
+                        str(context['step'])
+                    )
+                    keywords = list(set(keywords + step_keywords))
+
+                # Construct search query intelligently
+                search_queries = [self._construct_search_query(query, keywords, context)]
+
+            # If multiple queries, search in parallel and combine results
+            if len(search_queries) > 1:
+                return self._search_multiple_queries_parallel(
+                    search_queries,
+                    query,
+                    num_results,
+                    scrape_content,
+                    summarize
+                )
+
+            # Single query search
+            search_query = search_queries[0]
 
             # Check cache first
             cached = self.cache.get(search_query)
@@ -353,6 +458,12 @@ class FreeWebSearchTool:
 
             # Perform DuckDuckGo search
             results = self._search_duckduckgo(search_query, num_results)
+
+            # If no results and we have LLM, try original query as fallback
+            if not results:
+                print(f"⚠️  No results for reformulated query, trying original query...")
+                results = self._search_duckduckgo(query, num_results)
+                search_query = query  # Update for caching
 
             if not results:
                 return f"No results found for: {search_query}"
@@ -364,7 +475,7 @@ class FreeWebSearchTool:
             # Cache results
             search_data = {
                 'query': search_query,
-                'keywords': keywords,
+                'keywords': [],
                 'results': results,
                 'timestamp': time.time()
             }
@@ -375,6 +486,70 @@ class FreeWebSearchTool:
 
         except Exception as e:
             return f"Error performing search: {str(e)}"
+
+    def _construct_search_query(
+        self,
+        original_query: str,
+        keywords: List[str],
+        context: Optional[Dict] = None
+    ) -> str:
+        """
+        Intelligently construct search query from keywords or original query.
+
+        Args:
+            original_query: Original user query
+            keywords: Extracted keywords
+            context: Optional context
+
+        Returns:
+            Best search query to use
+        """
+        # If too few keywords or keywords are too generic, use original query
+        if not keywords or len(keywords) < 2:
+            return original_query
+
+        # Check if keywords lost important context
+        original_lower = original_query.lower()
+        keywords_lower = [k.lower() for k in keywords]
+
+        # Important terms that should be preserved
+        important_terms = ['bollywood', 'hindi', 'indian', 'movies', 'films', 'actors']
+
+        # If original has important terms but keywords don't, use original
+        has_important = any(term in original_lower for term in important_terms)
+        keywords_have_important = any(
+            any(term in kw for term in important_terms)
+            for kw in keywords_lower
+        )
+
+        if has_important and not keywords_have_important:
+            # Add domain context
+            if 'bollywood' not in original_lower and (
+                'movies' in original_lower or
+                'films' in original_lower or
+                'actors' in original_lower
+            ):
+                return f"Bollywood {original_query}"
+            return original_query
+
+        # Use keywords but ensure we have domain context
+        keyword_query = ' '.join(keywords[:5])
+
+        # Add Bollywood context if query seems to be about movies/entertainment
+        # but doesn't explicitly mention it
+        needs_context = any(
+            term in keyword_query.lower()
+            for term in ['movies', 'films', 'actors', 'actress', 'director', 'box office', 'collection']
+        )
+        has_context = any(
+            term in keyword_query.lower()
+            for term in ['bollywood', 'hindi', 'indian cinema']
+        )
+
+        if needs_context and not has_context:
+            return f"Bollywood {keyword_query}"
+
+        return keyword_query
 
     def _search_duckduckgo(self, query: str, num_results: int = 5) -> List[Dict]:
         """
@@ -443,6 +618,77 @@ class FreeWebSearchTool:
                 result['scraped'] = scraped_content[url]
 
         return results
+
+    def _search_multiple_queries_parallel(
+        self,
+        search_queries: List[str],
+        original_query: str,
+        num_results: int,
+        scrape_content: bool,
+        summarize: bool
+    ) -> str:
+        """
+        Execute multiple search queries in parallel and combine results.
+
+        Args:
+            search_queries: List of reformulated search queries
+            original_query: Original user query
+            num_results: Number of results per query
+            scrape_content: Whether to scrape content
+            summarize: Whether to use LLM summarization
+
+        Returns:
+            Combined and deduplicated search results
+        """
+        print(f"🔍 Searching {len(search_queries)} queries in parallel...")
+
+        all_results = []
+        seen_urls = set()
+
+        # Execute searches in parallel
+        with ThreadPoolExecutor(max_workers=min(3, len(search_queries))) as executor:
+            future_to_query = {
+                executor.submit(self._search_duckduckgo, query, num_results): query
+                for query in search_queries
+            }
+
+            for future in as_completed(future_to_query):
+                query = future_to_query[future]
+                try:
+                    results = future.result()
+                    print(f"   ✅ {query}: {len(results)} results")
+
+                    # Deduplicate by URL
+                    for result in results:
+                        url = result['url']
+                        if url not in seen_urls:
+                            seen_urls.add(url)
+                            all_results.append(result)
+
+                except Exception as e:
+                    print(f"   ❌ {query}: {e}")
+
+        if not all_results:
+            return f"No results found for any of the search queries."
+
+        # Limit to top results
+        all_results = all_results[:num_results * 2]  # Get more for better coverage
+
+        # Scrape top results if requested
+        if scrape_content:
+            all_results = self._scrape_results(all_results, max_sites=min(5, len(all_results)))
+
+        # Create combined search data
+        search_data = {
+            'query': original_query,
+            'keywords': [],
+            'results': all_results,
+            'timestamp': time.time(),
+            'parallel_queries': search_queries
+        }
+
+        # Format and return
+        return self._format_results(search_data, summarize)
 
     def _format_results(self, search_data: Dict, summarize: bool = True) -> str:
         """
@@ -645,6 +891,11 @@ def google_search_tool(
         query: Search query
         context: Optional context (may contain plan step info)
         **kwargs: Additional arguments
+            - num_results: Number of results (default 5)
+            - scrape_content: Whether to scrape websites (default True)
+            - summarize: Whether to use LLM summarization (default True)
+            - use_llm_reformulation: Whether to use LLM to reformulate query (default True)
+            - num_parallel_queries: Number of parallel queries to generate (1-3, default 1)
 
     Returns:
         Formatted search results
@@ -655,13 +906,17 @@ def google_search_tool(
     num_results = kwargs.get('num_results', 5)
     scrape_content = kwargs.get('scrape_content', True)
     summarize = kwargs.get('summarize', True)
+    use_llm_reformulation = kwargs.get('use_llm_reformulation', True)
+    num_parallel_queries = kwargs.get('num_parallel_queries', 1)
 
     return tool.search(
         query=query,
         context=context,
         num_results=num_results,
         scrape_content=scrape_content,
-        summarize=summarize
+        summarize=summarize,
+        use_llm_reformulation=use_llm_reformulation,
+        num_parallel_queries=num_parallel_queries
     )
 
 

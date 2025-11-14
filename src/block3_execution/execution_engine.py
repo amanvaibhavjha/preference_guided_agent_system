@@ -51,32 +51,57 @@ class ExecutionEngine:
         )
     
     def _initialize_tools(self) -> Dict[str, Any]:
-        """Initialize available tools."""
+        """Initialize available tools with KG-aware versions."""
         # Import tools dynamically
         try:
-            from block3_execution.tools.create_knowledge_graph import knowledge_graph_tool
-            from src.block3_execution.tools.sentiment_analyzer import sentiment_analyzer_tool
-            from src.block3_execution.tools.summarizer import summarizer_tool
-            from src.block3_execution.tools.news_aggregator import news_aggregator_tool
-            from src.block3_execution.tools.google_search import google_search_tool
+            # Import KG-aware tools (automatically learn and update KG)
+            from src.block3_execution.tools.kg_integration import (
+                kg_aware_google_search,
+                kg_aware_sentiment_analyzer,
+                kg_aware_news_aggregator,
+                kg_aware_summarizer
+            )
+            from src.block3_execution.tools.dynamic_knowledge_graph import dynamic_kg_tool
+
+            self.logger.logger.info("✅ Loaded KG-aware tools (automatic learning enabled)")
 
             return {
-                'knowledge_graph': knowledge_graph_tool,
-                'sentiment_analyzer': sentiment_analyzer_tool,
-                'summarizer': summarizer_tool,
-                'news_aggregator': news_aggregator_tool,
-                'google_search': google_search_tool,
+                'knowledge_graph': dynamic_kg_tool,  # Dynamic self-evolving KG
+                'sentiment_analyzer': kg_aware_sentiment_analyzer,
+                'summarizer': kg_aware_summarizer,
+                'news_aggregator': kg_aware_news_aggregator,
+                'google_search': kg_aware_google_search,
             }
         except ImportError as e:
-            self.logger.logger.warning(f"Could not import tools: {e}. Using mock tools.")
-            # Fallback to mock tools if import fails
-            return {
-                'knowledge_graph': self._mock_knowledge_graph,
-                'sentiment_analyzer': self._mock_sentiment_analyzer,
-                'summarizer': self._mock_summarizer,
-                'news_aggregator': self._mock_news_aggregator,
-                'google_search': self._mock_google_search,
-            }
+            self.logger.logger.warning(f"Could not import KG-aware tools: {e}. Trying regular tools.")
+
+            # Fallback to regular tools (without KG integration)
+            try:
+                from src.block3_execution.tools.create_knowledge_graph import knowledge_graph_tool
+                from src.block3_execution.tools.sentiment_analyzer import sentiment_analyzer_tool
+                from src.block3_execution.tools.summarizer import summarizer_tool
+                from src.block3_execution.tools.news_aggregator import news_aggregator_tool
+                from src.block3_execution.tools.google_search import google_search_tool
+
+                self.logger.logger.info("⚠️  Loaded regular tools (KG learning disabled)")
+
+                return {
+                    'knowledge_graph': knowledge_graph_tool,
+                    'sentiment_analyzer': sentiment_analyzer_tool,
+                    'summarizer': summarizer_tool,
+                    'news_aggregator': news_aggregator_tool,
+                    'google_search': google_search_tool,
+                }
+            except ImportError as e2:
+                self.logger.logger.error(f"Could not import any tools: {e2}. Using mock tools.")
+                # Last resort: mock tools
+                return {
+                    'knowledge_graph': self._mock_knowledge_graph,
+                    'sentiment_analyzer': self._mock_sentiment_analyzer,
+                    'summarizer': self._mock_summarizer,
+                    'news_aggregator': self._mock_news_aggregator,
+                    'google_search': self._mock_google_search,
+                }
     
     def execute_plan(
         self,
